@@ -1,0 +1,7 @@
+name	ip		user	pswd
+
+rpi4	192.168.0.102	pi	admin
+rpi3	192.168.0.105	forloop	UrMomGay
+
+
+
