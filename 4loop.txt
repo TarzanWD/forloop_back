@@ -1,3 +1,0 @@
-name	ip		        user	pswd
-
-rpi4	10.10.10.219	pi	    admin
