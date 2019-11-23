@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "es2018.promise", "es2017", "dom", "esnext.asynciterable"],
+    "types": ["node", "core-js"],
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": false,
+    "target": "es6",
+    "module": "commonjs",
+    "sourceMap": true,
+    "rootDir": ".",
+    "outDir": "build"
+  },
+  "include": ["fixtures/**/*", "src/**/*", "tests/**/*"],
+  "types": "./index.d.ts",
+  "ignore": ["node_modules", ".npm"],
+  "exclude": ["node_modules"]
+}
