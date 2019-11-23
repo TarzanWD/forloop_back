@@ -1,6 +1,9 @@
 import { Room } from "../models/Room"
 import { Request, Response } from 'express'
-import { getConnection, Repository } from "typeorm"
+import { getConnection } from "typeorm"
+import { authorize } from '../utils/google'
+import { deleteEvent, isEventPresent} from './event'
+import moment = require("moment")
 
 export const createRoom = async (req: Request, res: Response) => {
     const { location, max_people, name, sensor_id } = req.body
@@ -55,10 +58,21 @@ export const motionRoom = async (req: Request, res: Response) => {
         const rightRoom = await repo.findOne({ sensorId: hardware_serial })
         if (!rightRoom) {
             res.end()
+            return
         }
         
-        rightRoom.last_battery_percentage = battery_percentage || 0
+        rightRoom.last_battery_percentage = Number(battery_percentage) || 0
         rightRoom.is_full = Number(motion_count) > 2
+
+        if (!rightRoom.is_full) {
+            authorize(isEventPresent('marecek@marekhradil.net', { from: moment().subtract('5', 'minutes').toISOString() }, (answer) => {
+                const lastEvent = answer[0]
+                const todayISO = new Date().toISOString()
+                if (moment(lastEvent.start.dateTime).isBefore(todayISO) && moment(lastEvent.end.dateTime).isAfter(todayISO)) {
+                    authorize(deleteEvent('marecek@marekhradil.net', lastEvent.id, () => console.log('deleted')))
+                }
+            }))
+        }
 
         await rightRoom.save()
         res.end()

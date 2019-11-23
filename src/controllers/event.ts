@@ -11,7 +11,7 @@ export const createEvent = async (req: Request, res: Response) => {
     const room = await repo.findOne({ id: room_id })
 
 
-    const event = assembleNewEvent({ eventName, room: { location: room.location }, date: { from: date_from, till: date_till }, attendees: peopleMails})
+    const event = assembleNewEvent({ eventName, room: { name: room.name, location: room.location }, date: { from: date_from, till: date_till }, attendees: peopleMails})
     const sendAnswer = (answer) => {
         res.json(answer)
     }
@@ -64,7 +64,7 @@ export const listTimes = async(req: Request, res: Response) => {
     }
 }
 
-const listEventsFromCalendar = (calendarId , { from, till }, cb) => auth => {
+export const listEventsFromCalendar = (calendarId , { from, till }, cb) => auth => {
     const calendar = google.calendar({ version: 'v3', auth })
         calendar.events.list(
           {
@@ -90,10 +90,46 @@ const listEventsFromCalendar = (calendarId , { from, till }, cb) => auth => {
         )
 }
 
-const assembleNewEvent = ({ eventName, room: { location }, date: { from, till }, attendees}) => ({
+export const deleteEvent = (calendarId, eventId, cb) => auth => {
+    const calendar = google.calendar({ version: 'v3', auth })
+    calendar.events.delete({
+        calendarId,
+        eventId,
+        auth,
+        sendUpdates: 'all'
+    })
+}
+
+export const  isEventPresent= (calendarId , { from }, cb) => auth => {
+    const calendar = google.calendar({ version: 'v3', auth })
+        calendar.events.list(
+          {
+            calendarId,
+            timeMin: from,
+            maxResults: 10,
+            singleEvents: true,
+            orderBy: 'startTime',
+          },
+          (err, res) => {
+            if (err)  {
+                console.error(err)
+                cb([])
+            }
+
+            const events = res.data.items
+            if (events.length) {
+              cb(events)
+            } else {
+              cb([])
+            }
+          }
+        )
+}
+
+const assembleNewEvent = ({ eventName, room: { location, name }, date: { from, till }, attendees}) => ({
     summary: eventName,
     location,
-    description: 'Automatticaly created event by Busyroom',
+    description: `In room: ${name}`,
     start: {
         timeZone: 'Europe/Prague',
         dateTime: from,
@@ -106,8 +142,8 @@ const assembleNewEvent = ({ eventName, room: { location }, date: { from, till },
     reminders: {
         useDefault: false,
         overrides: [
-            { method: 'email', minutes: 24 * 60 },
-            { method: 'popup', minutes: 10 }
+            { method: 'email', minutes: 1 },
+            { method: 'popup', minutes: 1 }
         ]
     }
 })
