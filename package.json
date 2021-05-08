@@ -19,7 +19,7 @@
     "pg": "^7.14.0",
     "prettier": "^1.19.1",
     "ts-node-dev": "^1.0.0-pre.44",
-    "typeorm": "^0.2.20",
+    "typeorm": "^0.2.25",
     "typescript": "^3.7.2"
   }
 }
